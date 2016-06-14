@@ -69,8 +69,7 @@ for i in we.drop('Date',axis=1).columns:
     we[i]=we[i].apply(to_float)
 
 
-
-#basic model, LDA
+#basic model
 
 #read in test data and then clean/transform on the same scores used for training
 test=pd.read_csv('data/test.csv').drop(['Address','AddressAccuracy','AddressNumberAndStreet'],axis=1)
@@ -127,10 +126,13 @@ for i in proba:
 #(false negative) (true positive)
 print confusion_matrix(y_test,y_pred2)
 
+
+#Look at Decision Tree Accuracy
 dt = DecisionTreeClassifier(class_weight='balanced')
 dt.fit(X,y)
 dt.score(X_test,y_test)
 
+#Look at Random Forest Accuracy
 rf = RandomForestClassifier(class_weight='balanced')
 rf.fit(X,y)
 rf.score(X_test,y_test)
