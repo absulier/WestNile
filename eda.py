@@ -3,12 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import normaltest
+from sklearn.cross_validation import train_test_split as tts
 %matplotlib inline
 
 #read in data
 df=pd.read_csv('data/train.csv')
 weather=pd.read_csv('data/weather.csv')
 spray=pd.read_csv('data/spray.csv')
+
+#doing a quick split so that we have train and test
+train, test = tts(df, train_size=.90)
+pd.DataFrame.to_csv(train,'data/train2.csv',index=False)
+pd.DataFrame.to_csv(test,'data/test.csv',index=False)
+
+
 
 #check out data
 df.head()
