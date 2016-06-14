@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 %matplotlib inline
 
 #read in traning data
-df=pd.read_csv('data/train2.csv').drop(['Address','AddressNumberAndStreet'],axis=1)
+df=pd.read_csv('data/train2.csv').drop(['Address','AddressAccuracy','AddressNumberAndStreet'],axis=1)
 
 #creating a score for each block based on the percentage of
 #samples found on that block with WNV
@@ -49,8 +49,20 @@ df.month=df.merge(df5,on='month',how='left').WnvPresent_y
 df=df.merge(pd.get_dummies(df.Species),left_index=True,right_index=True).drop('Species',axis=1)
 
 #renames columns to make them more workable
-df.columns=['date','block','street','trap','lat','lon','adac','nummos','wnv','week','s_err','s_pip','s_p/r','s_res','s_sal','s_tar','s_ter']
-df
+df.columns=['date','block','street','trap','lat','lon','num_mos','wnv','week','s_err','s_pip','s_p/r','s_res','s_sal','s_tar','s_ter']
 
 
-df2
+#Read in weather data
+we=pd.read_csv('data/weather.csv')
+we=we[we['Station']==1].drop(['Station','CodeSum','Water1'],axis=1)
+
+#convert missing values to 0 and turn to floats
+def to_float(x):
+    if 'T' in str(x) or 'M' in str(x):
+        return 0
+    else:
+        return float(x)
+for i in we.drop('Date',axis=1).columns:
+    we[i]=we[i].apply(to_float)
+
+#basic model
