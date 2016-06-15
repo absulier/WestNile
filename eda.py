@@ -16,8 +16,6 @@ train, test = tts(df, train_size=.90)
 pd.DataFrame.to_csv(train,'data/train2.csv',index=False)
 pd.DataFrame.to_csv(test,'data/test.csv',index=False)
 
-
-
 #check out data
 df.head()
 weather.head()

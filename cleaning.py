@@ -1,11 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.lda import LDA
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix
-%matplotlib inline
 
 #read in traning data
 df=pd.read_csv('data/train2.csv').drop(['Address','AddressAccuracy','AddressNumberAndStreet'],axis=1)
@@ -37,7 +31,6 @@ for i in df.Date:
         month.append(i[5:7]+'.3')
     else:
         month.append(i[5:7]+'.4')
-
 df['month']=month
 df5 = df.groupby(by=["month"], as_index=False)
 df5 = df5.agg({'WnvPresent': np.mean,
@@ -68,71 +61,10 @@ def to_float(x):
 for i in we.drop('Date',axis=1).columns:
     we[i]=we[i].apply(to_float)
 
-
-#basic model
-
-#read in test data and then clean/transform on the same scores used for training
-test=pd.read_csv('data/test.csv').drop(['Address','AddressAccuracy','AddressNumberAndStreet'],axis=1)
-month=[]
-for i in train.Date:
-    if int(i[8:10]) < 8:
-        month.append(i[5:7]+'.1')
-    elif int(i[8:10]) < 16:
-        month.append(i[5:7]+'.2')
-    elif int(i[8:10]) < 24:
-        month.append(i[5:7]+'.3')
-    else:
-        month.append(i[5:7]+'.4')
-test['month']=month
-test.Block=test.merge(df2,on='Block',how='left').WnvPresent_y
-test.Street=test.merge(df3,on='Street',how='left').WnvPresent_y
-test.Trap=test.merge(df4,on='Trap',how='left').WnvPresent_y
-test.month=test.merge(df5,on='month',how='left').WnvPresent_y
-test=test.merge(pd.get_dummies(test.Species),left_index=True,right_index=True).drop('Species',axis=1)
-test.columns=['date','block','street','trap','lat','lon','num_mos','wnv','week','s_pip','s_p/r','s_res','s_sal','s_ter']
-
-#Some species dont appear in test data, so just adding empty dummy variables to
-#make sure test and train has matching features
-s_=[]
-for i in range(len(train)):
-    s_.append(0)
-test['s_err'],test['s_tar']=s_,s_
-test=test[['date','block','street','trap','lat','lon','num_mos','wnv','week','s_err','s_pip','s_p/r','s_res','s_sal','s_tar','s_ter']]
-
-#declare test target and data
-X_test=test.drop(['wnv','date'],axis=1)
-y_test=test['wnv']
-
-#running the train and test data in LDA
-X=df.drop(['wnv','date'],axis=1)
-y=df['wnv']
-lda_classifier = LDA(n_components=2)
-lda_x_axis = lda_classifier.fit(X, y).transform(X)
-
-lda_classifier.score(X_test, y_test, sample_weight=None)
-y_pred=lda_classifier.predict_proba(X_test)
-proba=pd.DataFrame(y_pred)[1]
-proba.mean()
-
-#play with the predication threshold to see falsenegative/positive trade off
-y_pred2=[]
-for i in proba:
-    if i>.06:
-        y_pred2.append(1)
-    else:
-        y_pred2.append(0)
-
-#(true negative) (false positive)
-#(false negative) (true positive)
-print confusion_matrix(y_test,y_pred2)
-
-
-#Look at Decision Tree Accuracy
-dt = DecisionTreeClassifier(class_weight='balanced')
-dt.fit(X,y)
-dt.score(X_test,y_test)
-
-#Look at Random Forest Accuracy
-rf = RandomForestClassifier(class_weight='balanced')
-rf.fit(X,y)
-rf.score(X_test,y_test)
+#print the clean data
+pd.DataFrame.to_csv(df,'data_clean/df.csv',index=False)
+pd.DataFrame.to_csv(we,'data_clean/we.csv',index=False)
+pd.DataFrame.to_csv(df2,'data_clean/df2.csv',index=False)
+pd.DataFrame.to_csv(df3,'data_clean/df3.csv',index=False)
+pd.DataFrame.to_csv(df4,'data_clean/df4.csv',index=False)
+pd.DataFrame.to_csv(df5,'data_clean/df5.csv',index=False)
