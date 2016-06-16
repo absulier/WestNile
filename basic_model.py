@@ -1,8 +1,15 @@
 import pandas as pd
 from sklearn.lda import LDA
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, BaggingClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.metrics import classification_report as skcr
+from sklearn.metrics import roc_curve as skrc
+from sklearn.metrics import auc
+import matplotlib.pyplot as plt
+import seaborn
+%matplotlib inline
+
 
 #read in train data and dataframes for feature scores
 df=pd.read_csv('data_clean/df.csv')
@@ -62,11 +69,43 @@ y_test=test['wnv']
 X=df.drop(['wnv','date'],axis=1)
 y=df['wnv']
 
-#running the train and test data in LDA
+#running the train and test data in LDA (this gives the best model)
 lda_classifier = LDA(n_components=2)
 lda_x_axis = lda_classifier.fit(X, y).transform(X)
-
 lda_classifier.score(X_test, y_test, sample_weight=None)
+
+#Look at Decision Tree Accuracy
+dt = DecisionTreeClassifier(class_weight='balanced')
+dt.fit(X,y)
+dt.score(X_test,y_test)
+
+#Look at Random Forest Accuracy
+rf = RandomForestClassifier(class_weight='balanced')
+rf.fit(X,y)
+rf.score(X_test,y_test)
+
+#Extra Trees Accuracy
+et = ExtraTreesClassifier(class_weight='balanced')
+et.fit(X,y)
+et.score(X_test,y_test)
+
+#Bagging Accuracy
+bc = BaggingClassifier(dt)
+bc.fit(X,y)
+bc.score(X_test,y_test)
+
+#Boosting Accuracy
+ab = AdaBoostClassifier(dt)
+ab.fit(X,y)
+ab.score(X_test,y_test)
+
+#Gradient Boosting Accuracy (okay model, almost as good as LDA)
+gb = GradientBoostingClassifier()
+gb.fit(X,y)
+gb.score(X_test,y_test)
+
+#using LDA model to predict probablilites, look at confusion matrix
+#and plot ROC curve
 y_pred=lda_classifier.predict_proba(X_test)
 proba=pd.DataFrame(y_pred)[1]
 proba.mean()
@@ -83,12 +122,11 @@ for i in proba:
 #(false negative) (true positive)
 print confusion_matrix(y_test,y_pred2)
 
-#Look at Decision Tree Accuracy
-dt = DecisionTreeClassifier(class_weight='balanced')
-dt.fit(X,y)
-dt.score(X_test,y_test)
-
-#Look at Random Forest Accuracy
-rf = RandomForestClassifier(class_weight='balanced')
-rf.fit(X,y)
-rf.score(X_test,y_test)
+#building Roc
+false_positive_rate, true_positive_rate, thresholds = skrc(y_test,proba)
+roc_auc = auc(false_positive_rate, true_positive_rate)
+#plotting curve
+plt.title('ROC')
+plt.plot(false_positive_rate, true_positive_rate, 'r', label=roc_auc)
+plt.legend(loc='lower right')
+plt.show()
