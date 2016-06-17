@@ -12,7 +12,6 @@ from sklearn.linear_model import LogisticRegression
 import seaborn
 %matplotlib inline
 
-
 #read in train data and dataframes for feature scores
 df=pd.read_csv('data_clean/df.csv')
 df2=pd.read_csv('data_clean/df2.csv')
@@ -95,10 +94,9 @@ for i in df_f.features:
 X2=X[best[0:20]]
 X_test2=X_test[best[0:20]]
 
-#Building a loop to find best model and feature selection
+#Building a loop to find best model and feature selection (results are lda with the 23 best features)
 model=[]
 score=[]
-len(range(10,len(best)))
 for i in range(10,len(best)):
     X2=X[best[0:i]]
     X_test2=X_test[best[0:i]]
@@ -151,7 +149,7 @@ for i in model_scores.index:
     if model_scores.score[i]==max(model_scores.score):
         print model_scores.score[i]
         print model_scores.model[i]
-
+best
 #using LDA model without feature selection to predict probablilites, look at confusion matrix
 #and plot ROC curve
 X2=X[best[0:23]]
@@ -167,7 +165,7 @@ proba.mean()
 #play with the predication threshold to see falsenegative/positive trade off
 y_pred2=[]
 for i in proba:
-    if i>.06:
+    if i>.05:
         y_pred2.append(1)
     else:
         y_pred2.append(0)
