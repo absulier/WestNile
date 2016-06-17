@@ -149,9 +149,9 @@ for i in model_scores.index:
     if model_scores.score[i]==max(model_scores.score):
         print model_scores.score[i]
         print model_scores.model[i]
-best
+
 #using LDA model without feature selection to predict probablilites, look at confusion matrix
-#and plot ROC curve
+#and plot ROC curve Accuracy= .949571
 X2=X[best[0:23]]
 X_test2=X_test[best[0:23]]
 lda= LDA(n_components=2)
@@ -165,16 +165,24 @@ proba.mean()
 #play with the predication threshold to see falsenegative/positive trade off
 y_pred2=[]
 for i in proba:
-    if i>.05:
+    if i>.0553:
         y_pred2.append(1)
     else:
         y_pred2.append(0)
 
 #(true negative) (false positive)
 #(false negative) (true positive)
+#(786)(207)
+#(13)(45)
 print confusion_matrix(y_test,y_pred2)
 
-#building Roc
+#Base line confusion matrix
+#(991)(2)
+#(51)(71)
+y_pred=lda.predict(X_test2)
+print confusion_matrix(y_test,y_pred)
+
+#building Roc (AUC = .859)
 false_positive_rate, true_positive_rate, thresholds = skrc(y_test,proba)
 roc_auc = auc(false_positive_rate, true_positive_rate)
 #plotting curve
