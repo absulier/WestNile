@@ -95,72 +95,72 @@ for i in df_f.features:
 X2=X[best[0:20]]
 X_test2=X_test[best[0:20]]
 
-#running the train and test data in LDA (this gives the best model)
-lda = LDA(n_components=2)
-lda_x_axis = lda.fit(X, y).transform(X)
-lda.score(X_test, y_test, sample_weight=None)
+#Building a loop to find best model and feature selection
+model=[]
+score=[]
+len(range(10,len(best)))
+for i in range(10,len(best)):
+    X2=X[best[0:i]]
+    X_test2=X_test[best[0:i]]
 
+    #running the train and test data in LDA (this typically gives the best model)
+    model.append(['lda',i])
+    lda= LDA(n_components=2)
+    lda_x_axis = lda.fit(X2, y).transform(X2)
+    score.append(lda.score(X_test2, y_test, sample_weight=None))
+
+    #Look at Decision Tree Accuracy
+    model.append(['dt',i])
+    dt = DecisionTreeClassifier(class_weight='balanced')
+    dt.fit(X2,y)
+    score.append(dt.score(X_test2,y_test))
+
+    #Look at Random Forest Accuracy
+    model.append(['rf',i])
+    rf = RandomForestClassifier(class_weight='balanced')
+    rf.fit(X2,y)
+    score.append(rf.score(X_test2,y_test))
+
+    #Extra Trees Accuracy
+    model.append(['et',i])
+    et = ExtraTreesClassifier(class_weight='balanced')
+    et.fit(X2,y)
+    score.append(et.score(X_test2,y_test))
+
+    #Bagging Accuracy
+    model.append(['bc',i])
+    bc = BaggingClassifier(dt)
+    bc.fit(X2,y)
+    score.append(bc.score(X_test2,y_test))
+
+    #Boosting Accuracy
+    model.append(['ab',i])
+    ab = AdaBoostClassifier(dt)
+    ab.fit(X2,y)
+    score.append(ab.score(X_test2,y_test))
+
+    #Gradient Boosting Accuracy (okay model, almost as good as LDA)
+    model.append(['gb',i])
+    gb = GradientBoostingClassifier()
+    gb.fit(X2,y)
+    score.append(gb.score(X_test2,y_test))
+
+model_scores=pd.DataFrame({'model':model,'score':score})
+
+for i in model_scores.index:
+    if model_scores.score[i]==max(model_scores.score):
+        print model_scores.score[i]
+        print model_scores.model[i]
+
+#using LDA model without feature selection to predict probablilites, look at confusion matrix
+#and plot ROC curve
+X2=X[best[0:23]]
+X_test2=X_test[best[0:23]]
 lda= LDA(n_components=2)
 lda_x_axis = lda.fit(X2, y).transform(X2)
 lda.score(X_test2, y_test, sample_weight=None)
 
-#Look at Decision Tree Accuracy
-dt = DecisionTreeClassifier(class_weight='balanced')
-dt.fit(X,y)
-dt.score(X_test,y_test)
-
-dt = DecisionTreeClassifier(class_weight='balanced')
-dt.fit(X2,y)
-dt.score(X_test2,y_test)
-
-#Look at Random Forest Accuracy
-rf = RandomForestClassifier(class_weight='balanced')
-rf.fit(X,y)
-rf.score(X_test,y_test)
-
-rf = RandomForestClassifier(class_weight='balanced')
-rf.fit(X2,y)
-rf.score(X_test2,y_test)
-
-#Extra Trees Accuracy
-et = ExtraTreesClassifier(class_weight='balanced')
-et.fit(X,y)
-et.score(X_test,y_test)
-
-et = ExtraTreesClassifier(class_weight='balanced')
-et.fit(X2,y)
-et.score(X_test2,y_test)
-
-#Bagging Accuracy
-bc = BaggingClassifier(dt)
-bc.fit(X,y)
-bc.score(X_test,y_test)
-
-bc = BaggingClassifier(dt)
-bc.fit(X2,y)
-bc.score(X_test2,y_test)
-
-#Boosting Accuracy
-ab = AdaBoostClassifier(dt)
-ab.fit(X,y)
-ab.score(X_test,y_test)
-
-ab = AdaBoostClassifier(dt)
-ab.fit(X2,y)
-ab.score(X_test2,y_test)
-
-#Gradient Boosting Accuracy (okay model, almost as good as LDA)
-gb = GradientBoostingClassifier()
-gb.fit(X,y)
-gb.score(X_test,y_test)
-
-gb = GradientBoostingClassifier()
-gb.fit(X2,y)
-gb.score(X_test2,y_test)
-
-#using LDA model with out feature selection to predict probablilites, look at confusion matrix
-#and plot ROC curve
-y_pred=lda_classifier.predict_proba(X_test)
+y_pred=lda.predict_proba(X_test2)
 proba=pd.DataFrame(y_pred)[1]
 proba.mean()
 
