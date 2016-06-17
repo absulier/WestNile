@@ -186,7 +186,17 @@ print confusion_matrix(y_test,y_pred)
 false_positive_rate, true_positive_rate, thresholds = skrc(y_test,proba)
 roc_auc = auc(false_positive_rate, true_positive_rate)
 #plotting curve
-plt.title('ROC')
+fig_size = plt.rcParams["figure.figsize"]
+fig_size[0] = 15
+fig_size[1] = 10
+plt.rcParams["figure.figsize"] = fig_size
+plt.title('ROC',size=30)
 plt.plot(false_positive_rate, true_positive_rate, 'r', label=roc_auc)
-plt.legend(loc='lower right')
-plt.show()
+plt.legend(loc='lower right',fontsize=20)
+plt.xlabel('False Positve Rate',size=20)
+plt.ylabel('True Positive Rate',size=20)
+plt.savefig('ROC.jpg')
+
+predictions=X_test
+predictions['predictions']=y_pred
+pd.DataFrame.to_csv(predictions,'predictions.csv')
