@@ -198,5 +198,5 @@ plt.ylabel('True Positive Rate',size=20)
 plt.savefig('ROC.jpg')
 
 predictions=X_test
-predictions['predictions']=y_pred
+predictions['predictions']=y_pred2
 pd.DataFrame.to_csv(predictions,'predictions.csv')
